@@ -24,14 +24,14 @@ speech_config:
   normalize_per_frame: False
 
 decoder_config:
-  vocabulary: ./vocabularies/librispeech/librispeech_train_4_1030.subwords
+  vocabulary: /home/liuyi/TensorFlowASR/vocabularies/librispeech/librispeech_train_4_1030.subwords
   target_vocab_size: 1000
   max_subword_length: 10
   blank_at_zero: True
   beam_width: 0
   norm_score: True
   corpus_files:
-    - H:/MLDL/Datasets/ASR/Raw/LibriSpeech/train-clean-100/transcripts.tsv
+    - /home/liuyi/TensorFlowASR/dataset/LibriSpeech/train-clean-100/transcripts.tsv
 
 model_config:
   name: conformer
@@ -75,7 +75,7 @@ learning_config:
           num_masks: 1
           mask_factor: 27
     data_paths:
-      - H:/MLDL/Datasets/ASR/Raw/LibriSpeech/train-clean-100/transcripts.tsv
+      - /home/liuyi/TensorFlowASR/dataset/LibriSpeech/train-clean-100/transcripts.tsv
     tfrecords_dir: null
     shuffle: True
     cache: True
@@ -86,7 +86,7 @@ learning_config:
   eval_dataset_config:
     use_tf: True
     data_paths:
-      - H:/MLDL/Datasets/ASR/Raw/LibriSpeech/dev-clean/transcripts.tsv
+      - /home/liuyi/TensorFlowASR/dataset/LibriSpeech/dev-clean/transcripts.tsv
     tfrecords_dir: null
     shuffle: False
     cache: True
@@ -97,7 +97,7 @@ learning_config:
   test_dataset_config:
     use_tf: True
     data_paths:
-      - H:/MLDL/Datasets/ASR/Raw/LibriSpeech/test-clean/transcripts.tsv
+      - /home/liuyi/TensorFlowASR/dataset/LibriSpeech/test-clean/transcripts.tsv
     tfrecords_dir: null
     shuffle: False
     cache: True
@@ -112,16 +112,16 @@ learning_config:
     epsilon: 1e-9
 
   running_config:
-    batch_size: 2
-    num_epochs: 50
+    batch_size: 32
+    num_epochs: 5
     checkpoint:
-      filepath: D:/Models/local/conformer/checkpoints/{epoch:02d}.h5
-      save_best_only: False
-      save_weights_only: True
+      filepath: /home/liuyi/TensorFlowASR/Models/conformer/checkpoints/{epoch:02d}.h5
+      save_best_only: True
+      save_weights_only: False
       save_freq: epoch
-    states_dir: D:/Models/local/conformer/states
+    states_dir: /home/liuyi/TensorFlowASR/Models/conformer/states
     tensorboard:
-      log_dir: D:/Models/local/conformer/tensorboard
+      log_dir: /home/liuyi/TensorFlowASR/Models/conformer/tensorboard
       histogram_freq: 1
       write_graph: True
       write_images: True

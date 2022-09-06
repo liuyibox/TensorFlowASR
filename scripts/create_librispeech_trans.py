@@ -25,7 +25,7 @@ parser = argparse.ArgumentParser(prog="Setup LibriSpeech Transcripts")
 
 parser.add_argument("--dir", "-d", type=str, default=None, help="Directory of dataset")
 
-parser.add_argument("output", type=str, default=None, help="The output .tsv transcript file path")
+parser.add_argument("--output", type=str, default=None, help="The output .tsv transcript file path")
 
 args = parser.parse_args()
 

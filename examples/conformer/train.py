@@ -38,7 +38,7 @@ def main(
     spx: int = 1,
     metadata: str = None,
     static_length: bool = False,
-    devices: list = [0],
+    devices: list = [0,1,2],
     mxp: bool = False,
     pretrained: str = None,
 ):
@@ -112,4 +112,5 @@ def main(
 
 
 if __name__ == "__main__":
-    fire.Fire(main)
+    main()
+#    fire.Fire(main)
