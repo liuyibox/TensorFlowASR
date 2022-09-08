@@ -26,7 +26,7 @@ class BaseModel(tf.keras.Model):
         save_format=None,
         signatures=None,
         options=None,
-        save_traces=True,
+        save_traces=False,
     ):
         with file_util.save_file(filepath) as path:
             super().save(

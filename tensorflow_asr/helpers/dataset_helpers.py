@@ -59,11 +59,9 @@ def prepare_training_data_loaders(
     config: Config,
     train_dataset: asr_dataset.ASRDataset,
     eval_dataset: asr_dataset.ASRDataset,
-    strategy,
     batch_size: int = None,
 ):
     global_batch_size = batch_size or config.learning_config.running_config.batch_size
-    global_batch_size *= strategy.num_replicas_in_sync
     train_data_loader = train_dataset.create(global_batch_size)
     eval_data_loader = eval_dataset.create(global_batch_size)
     return train_data_loader, eval_data_loader, global_batch_size

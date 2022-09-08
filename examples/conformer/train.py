@@ -39,12 +39,11 @@ def main(
     metadata: str = None,
     static_length: bool = False,
     devices: list = [0,1,2],
-    mxp: bool = False,
+    mxp: bool = True,
     pretrained: str = None,
 ):
     tf.keras.backend.clear_session()
-    tf.config.optimizer.set_experimental_options({"auto_mixed_precision": mxp})
-    strategy = env_util.setup_strategy(devices)
+#    tf.config.optimizer.set_experimental_options({"auto_mixed_precision": mxp})
 
     config = Config(config)
 
@@ -70,30 +69,28 @@ def main(
         config=config,
         train_dataset=train_dataset,
         eval_dataset=eval_dataset,
-        strategy=strategy,
         batch_size=bs,
     )
 
-    with strategy.scope():
-        conformer = Conformer(**config.model_config, vocabulary_size=text_featurizer.num_classes)
-        conformer.make(speech_featurizer.shape, prediction_shape=text_featurizer.prepand_shape, batch_size=global_batch_size)
-        if pretrained:
-            conformer.load_weights(pretrained, by_name=True, skip_mismatch=True)
-        conformer.summary(line_length=100)
-        optimizer = tf.keras.optimizers.Adam(
-            TransformerSchedule(
-                d_model=conformer.dmodel,
-                warmup_steps=config.learning_config.optimizer_config.pop("warmup_steps", 10000),
-                max_lr=(0.05 / math.sqrt(conformer.dmodel)),
-            ),
-            **config.learning_config.optimizer_config
-        )
-        conformer.compile(
-            optimizer=optimizer,
-            experimental_steps_per_execution=spx,
-            global_batch_size=global_batch_size,
-            blank=text_featurizer.blank,
-        )
+    conformer = Conformer(**config.model_config, vocabulary_size=text_featurizer.num_classes)
+    conformer.make(speech_featurizer.shape, prediction_shape=text_featurizer.prepand_shape, batch_size=global_batch_size)
+    if pretrained:
+        conformer.load_weights(pretrained, by_name=True, skip_mismatch=True)
+    conformer.summary(line_length=100)
+    optimizer = tf.keras.optimizers.Adam(
+        TransformerSchedule(
+            d_model=conformer.dmodel,
+            warmup_steps=config.learning_config.optimizer_config.pop("warmup_steps", 10000),
+            max_lr=(0.05 / math.sqrt(conformer.dmodel)),
+        ),
+        **config.learning_config.optimizer_config
+    )
+    conformer.compile(
+        optimizer=optimizer,
+        experimental_steps_per_execution=spx,
+        global_batch_size=global_batch_size,
+        blank=text_featurizer.blank,
+    )
 
     callbacks = [
         tf.keras.callbacks.ModelCheckpoint(**config.learning_config.running_config.checkpoint),
@@ -112,5 +109,6 @@ def main(
 
 
 if __name__ == "__main__":
+    os.environ["CUDA_VISIBLE_DEVICES"]="1"
     main()
 #    fire.Fire(main)
