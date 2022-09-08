@@ -117,7 +117,7 @@ learning_config:
     checkpoint:
       filepath: /home/liuyi/TensorFlowASR/Models/conformer/checkpoints/{epoch:02d}
       save_best_only: False
-      save_weights_only: False
+      save_weights_only: True
       save_freq: epoch
       verbose: 1
     states_dir: /home/liuyi/TensorFlowASR/Models/conformer/states
