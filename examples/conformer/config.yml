@@ -115,7 +115,7 @@ learning_config:
     batch_size: 8
     num_epochs: 1
     checkpoint:
-      filepath: /home/liuyi/TensorFlowASR/Models/conformer/checkpoints/{epoch:02d}
+      filepath: /home/liuyi/TensorFlowASR/Models/conformer/checkpoints/{epoch:02d}.h5
       save_best_only: False
       save_weights_only: True
       save_freq: epoch

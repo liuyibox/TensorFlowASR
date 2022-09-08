@@ -32,7 +32,7 @@ def main(
     mxp: bool = False,
     bs: int = None,
     sentence_piece: bool = False,
-    subwords: bool = False,
+    subwords: bool = True,
     device: int = 0,
     cpu: bool = False,
     output: str = "test.tsv",
@@ -41,7 +41,7 @@ def main(
     tf.random.set_seed(0)
     tf.keras.backend.clear_session()
     tf.config.optimizer.set_experimental_options({"auto_mixed_precision": mxp})
-    env_util.setup_devices([device], cpu=cpu)
+#    env_util.setup_devices([device], cpu=cpu)
 
     config = Config(config)
 
