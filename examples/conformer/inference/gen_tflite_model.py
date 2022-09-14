@@ -29,7 +29,7 @@ DEFAULT_YAML = os.path.join(os.path.abspath(os.path.dirname(__file__)), "config.
 def main(
     config: str = DEFAULT_YAML,
     h5: str = None,
-    subwords: bool = False,
+    subwords: bool = True,
     sentence_piece: bool = False,
     output: str = None,
 ):

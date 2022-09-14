@@ -19,8 +19,8 @@ from tensorflow_asr.featurizers.speech_featurizers import read_raw_audio
 
 
 def main(
-    filename: str,
-    tflite: str = None,
+    filename: str = "/home/liuyi/TensorFlowASR/dataset/LibriSpeech/test-clean/5639/40744/5639-40744-0008.flac",
+    tflite: str = "conformer.tflite",
     blank: int = 0,
     num_rnns: int = 1,
     nstates: int = 2,
@@ -31,7 +31,12 @@ def main(
     signal = read_raw_audio(filename)
 
     input_details = tflitemodel.get_input_details()
+    print("input details:\n")
+    print(input_details)
+
     output_details = tflitemodel.get_output_details()
+    print("\noutput details:\n")
+    print(output_details)
     tflitemodel.resize_tensor_input(input_details[0]["index"], signal.shape)
     tflitemodel.allocate_tensors()
     tflitemodel.set_tensor(input_details[0]["index"], signal)
@@ -40,6 +45,7 @@ def main(
     tflitemodel.invoke()
     hyp = tflitemodel.get_tensor(output_details[0]["index"])
 
+    print("output:\n")
     print("".join([chr(u) for u in hyp]))
 
 
