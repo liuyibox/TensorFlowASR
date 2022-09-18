@@ -14,13 +14,16 @@
 
 import fire
 import tensorflow as tf
+import json
 
 from tensorflow_asr.featurizers.speech_featurizers import read_raw_audio
 
 
 def main(
     filename: str = "/home/liuyi/TensorFlowASR/dataset/LibriSpeech/test-clean/5639/40744/5639-40744-0008.flac",
-    tflite: str = "conformer.tflite",
+    tflite: str = "./tflite_models/subword-conformer.latest.tflite",
+#    tflite: str = "./tflite_models/subsampling-conformer.latest.tflite",
+#    tflite: str = "",
     blank: int = 0,
     num_rnns: int = 1,
     nstates: int = 2,
@@ -29,10 +32,16 @@ def main(
     tflitemodel = tf.lite.Interpreter(model_path=tflite)
 
     signal = read_raw_audio(filename)
+#    print(type(signal))
+#    print(signal.shape)
 
     input_details = tflitemodel.get_input_details()
     print("input details:\n")
     print(input_details)
+    print("resized input sh")
+#    input_json_obj = json.loads(input_details[0])
+#    input_json_formatted_str = json.dumps(json_obj, indent = 2)
+#    print(input_json_formmated_str)
 
     output_details = tflitemodel.get_output_details()
     print("\noutput details:\n")
@@ -43,10 +52,15 @@ def main(
     tflitemodel.set_tensor(input_details[1]["index"], tf.constant(blank, dtype=tf.int32))
     tflitemodel.set_tensor(input_details[2]["index"], tf.zeros([num_rnns, nstates, 1, statesize], dtype=tf.float32))
     tflitemodel.invoke()
-    hyp = tflitemodel.get_tensor(output_details[0]["index"])
+    hyp0 = tflitemodel.get_tensor(output_details[0]["index"])
+    hyp1 = tflitemodel.get_tensor(output_details[1]["index"])
+    hyp2 = tflitemodel.get_tensor(output_details[2]["index"])
 
     print("output:\n")
-    print("".join([chr(u) for u in hyp]))
+#    print(hyp0)
+#    print(hyp1)
+#    print(hyp2)
+    print("".join([chr(u) for u in hyp0]))
 
 
 if __name__ == "__main__":

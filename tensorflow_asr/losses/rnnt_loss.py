@@ -116,7 +116,9 @@ def extract_diagonals(
     log_probs,
 ):
     time_steps = tf.shape(log_probs)[1]  # T
+#    tf.print("time_steps: ", time_steps)
     output_steps = tf.shape(log_probs)[2]  # U + 1
+#    tf.print("output_steps: ", output_steps)
     reverse_log_probs = tf.reverse(log_probs, axis=[-1])
     paddings = [[0, 0], [0, 0], [time_steps - 1, 0]]
     padded_reverse_log_probs = tf.pad(reverse_log_probs, paddings, "CONSTANT", constant_values=LOG_0)
@@ -245,7 +247,9 @@ def compute_rnnt_loss_and_grad_helper(logits, labels, label_length, logit_length
     )
 
     log_probs = tf.nn.log_softmax(logits)
+#    tf.print("log_probs shape: ", tf.shape(log_probs))
     blank_probs, truth_probs = transition_probs(one_hot_labels, log_probs)
+#    tf.print("blank_probs shape: ", tf.shape(blank_probs), "truth_probs shape: ", tf.shape(truth_probs))
     bp_diags = extract_diagonals(blank_probs)
     tp_diags = extract_diagonals(truth_probs)
 
@@ -381,6 +385,11 @@ def rnnt_loss_tf(
         logit_length = tf.convert_to_tensor(logit_length, name="logit_length")
 
         args = [logits, labels, label_length, logit_length]
+        logger.info("rnnt_loss_tf logits: %s" % logits)
+        logger.info("rnnt_loss_tf labels: %s" % labels)
+        logger.info("rnnt_loss_tf label_length: %s" % label_length)
+        logger.info("rnnt_loss_tf logit_length: %s" % logit_length)
+#        logger.info(logits)
 
         @tf.custom_gradient
         def compute_rnnt_loss_and_grad(logits_t, labels_t, label_length_t, logit_length_t):

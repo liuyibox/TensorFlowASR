@@ -265,6 +265,8 @@ class SubwordFeaturizer(TextFeaturizer):
         """
         super(SubwordFeaturizer, self).__init__(decoder_config)
         self.subwords = self.__load_subwords() if subwords is None else subwords
+#        print(type(self.subwords))
+#        print(self.subwords)
         self.blank = 0  # subword treats blank as 0
         self.num_classes = self.subwords.vocab_size
         # create upoints

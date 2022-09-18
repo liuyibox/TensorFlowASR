@@ -64,6 +64,7 @@ def main(
     if not static_length:
         speech_featurizer.reset_length()
         text_featurizer.reset_length()
+#        print("speech_featurizer max length = %s, text_featurizer max_length = %s" % (speech_featurizer.max_length, text_featurizer.max_length))
 
     train_data_loader, eval_data_loader, global_batch_size = dataset_helpers.prepare_training_data_loaders(
         config=config,
@@ -72,6 +73,7 @@ def main(
         batch_size=bs,
     )
 
+#    print("conformer output vocab size: %s" % text_featurizer.num_classes)
     conformer = Conformer(**config.model_config, vocabulary_size=text_featurizer.num_classes)
     conformer.make(speech_featurizer.shape, prediction_shape=text_featurizer.prepand_shape, batch_size=global_batch_size)
     if pretrained:

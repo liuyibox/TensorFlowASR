@@ -99,5 +99,6 @@ class Config:
         self.decoder_config = config.pop("decoder_config", {})
         self.model_config = config.pop("model_config", {})
         self.learning_config = LearningConfig(config.pop("learning_config", {}))
+#        print("Config: %s" % config.items())
         for k, v in config.items():
             setattr(self, k, v)

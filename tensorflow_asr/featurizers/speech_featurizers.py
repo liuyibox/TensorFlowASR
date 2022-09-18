@@ -38,6 +38,9 @@ def load_and_convert_to_wav(
     path: str,
 ) -> tf.Tensor:
     wave, rate = librosa.load(os.path.expanduser(path), sr=None, mono=True)
+#    print(wave.shape)
+#    print(len(wave))
+#    print(rate)
     return tf.audio.encode_wav(tf.expand_dims(wave, axis=-1), sample_rate=rate)
 
 
@@ -46,6 +49,7 @@ def read_raw_audio(
     sample_rate=16000,
 ) -> np.ndarray:
     if isinstance(audio, str):
+#        print("sample_rate=%s" % sample_rate)
         wave, _ = librosa.load(os.path.expanduser(audio), sr=sample_rate, mono=True)
     elif isinstance(audio, bytes):
         wave, sr = sf.read(io.BytesIO(audio))

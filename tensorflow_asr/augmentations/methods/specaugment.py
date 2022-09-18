@@ -32,6 +32,7 @@ class FreqMasking(AugmentationMethod):
             frequency masked spectrogram
         """
         T, F, V = shape_util.shape_list(spectrogram, out_type=tf.int32)
+#        print("FreqMasking: ", T, F, V)
         for _ in range(self.num_masks):
             f = tf.random.uniform([], minval=0, maxval=self.mask_factor, dtype=tf.int32)
             f = tf.minimum(f, F)
@@ -64,6 +65,7 @@ class TimeMasking(AugmentationMethod):
             frequency masked spectrogram
         """
         T, F, V = shape_util.shape_list(spectrogram, out_type=tf.int32)
+#        print("TimeMasking: ", T, F, V)
         for _ in range(self.num_masks):
             t = tf.random.uniform([], minval=0, maxval=self.mask_factor, dtype=tf.int32)
             t = tf.minimum(t, tf.cast(tf.cast(T, dtype=tf.float32) * self.p_upperbound, dtype=tf.int32))

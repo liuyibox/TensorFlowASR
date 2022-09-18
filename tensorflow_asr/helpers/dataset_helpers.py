@@ -11,6 +11,10 @@ def prepare_training_datasets(
     tfrecords: bool = False,
     metadata: str = None,
 ):
+#    print("prepare_training_datasets:")
+#    for k, v in vars(config.learning_config.eval_dataset_config).items():
+#        print("the value of {} is {}".format(k, v))
+#    print(**vars(config.learning_config.eval_dataset_config))
     if tfrecords:
         train_dataset = asr_dataset.ASRTFRecordDataset(
             speech_featurizer=speech_featurizer,
@@ -64,4 +68,6 @@ def prepare_training_data_loaders(
     global_batch_size = batch_size or config.learning_config.running_config.batch_size
     train_data_loader = train_dataset.create(global_batch_size)
     eval_data_loader = eval_dataset.create(global_batch_size)
+#    print("train_data_loader: ", train_data_loader.cardinality().numpy())
+#    print("eval_data_loader: ", eval_data_loader.cardinality().numpy())
     return train_data_loader, eval_data_loader, global_batch_size

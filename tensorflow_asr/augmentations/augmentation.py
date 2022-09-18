@@ -25,6 +25,7 @@ class Augmentation:
     def __init__(self, config: dict = None):
         if not config:
             config = {}
+#        print("config in augmentation: %s" % config)
         self.prob = float(config.pop("prob", 0.5))
         self.signal_augmentations = self.parse(config.pop("signal_augment", {}))
         self.feature_augmentations = self.parse(config.pop("feature_augment", {}))
@@ -38,10 +39,20 @@ class Augmentation:
 
     @tf.function
     def signal_augment(self, inputs):
+#        if len(self.signal_augmentations) != 0:
+#            print("signal_augmentations are none")
+#        else:
+#            print("signal_augmentations are not none")
+#            print(self.signal_augmentations)
         return self._augment(inputs, self.signal_augmentations)
 
     @tf.function
     def feature_augment(self, inputs):
+#        if len(self.feature_augmentations) != 0:
+#            print("feature_augmentations are none")
+#        else:
+#            print("feature_augmentations are not none")
+#            print(self.feature_augmentations)
         return self._augment(inputs, self.feature_augmentations)
 
     @staticmethod
@@ -53,4 +64,7 @@ class Augmentation:
                 raise KeyError(f"No tf augmentation named: {key}\n" f"Available tf augmentations: {AUGMENTATIONS.keys()}")
             aug = au(**value) if value is not None else au()
             augmentations.append(aug)
+#        print("augmentations length = %s" % len(augmentations))
+#        if len(augmentations) > 0:
+#            print(augmentations)
         return augmentations

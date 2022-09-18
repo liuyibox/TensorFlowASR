@@ -18,6 +18,7 @@ from typing import Union
 import numpy as np
 import tensorflow as tf
 import tqdm
+import sys
 
 from tensorflow_asr.augmentations.augmentation import Augmentation
 from tensorflow_asr.datasets.base_dataset import AUTOTUNE, BUFFER_SIZE, TFRECORD_SHARDS, BaseDataset
@@ -139,7 +140,14 @@ class ASRDataset(BaseDataset):
         self.entries = [line.split("\t", 2) for line in self.entries]
         for i, line in enumerate(self.entries):
             self.entries[i][-1] = " ".join([str(x) for x in self.text_featurizer.extract(line[-1]).numpy()])
+#        for i in range(5):
+#            print(len(self.entries[i][-1]))
+#            print(self.entries[i][-1])
         self.entries = np.array(self.entries)
+#        print(self.entries[0])
+#        print(type(self.entries))
+#        print(len(self.entries[0][2]))
+#        print(len(self.entries[1][2]))
         if self.shuffle:
             np.random.shuffle(self.entries)  # Mix transcripts.tsv
         self.total_steps = len(self.entries)
@@ -177,16 +185,27 @@ class ASRDataset(BaseDataset):
     def tf_preprocess(self, path: tf.Tensor, audio: tf.Tensor, indices: tf.Tensor):
         with tf.device("/CPU:0"):
             signal = tf_read_raw_audio(audio, self.speech_featurizer.sample_rate)
+#            print("ASRDataset signal: %s" % signal)
             signal = self.augmentations.signal_augment(signal)
             features = self.speech_featurizer.tf_extract(signal)
             features = self.augmentations.feature_augment(features)
             input_length = tf.cast(tf.shape(features)[0], tf.int32)
+#            print(tf.shape(features))
+#            tf.print(input_length, output_stream=sys.stdout)
+#            print("ASRDataset input length: %s" % tf.print(input_length))
+#            print("ASRDataset features shape: %s" % tf.cast(tf.shape(features), tf.int32))
 
             label = tf.strings.to_number(tf.strings.split(indices), out_type=tf.int32)
             label_length = tf.cast(tf.shape(label)[0], tf.int32)
+#            tf.print(label_length, output_stream=sys.stdout)
+#            print("ASRDataset label length: %s" % tf.print(label_length))
+#            print("ASRDataset label shape: %s" % tf.cast(tf.shape(label), tf.int32))
 
             prediction = self.text_featurizer.prepand_blank(label)
             prediction_length = tf.cast(tf.shape(prediction)[0], tf.int32)
+#            tf.print(prediction_length, output_stream=sys.stdout)
+#            print("ASRDataset predictions length: %s" % tf.print(prediction_length))
+#            print("ASRDataset prediction shape: %s" % tf.cast(tf.shape(label), tf.int32))
 
             return path, features, input_length, label, label_length, prediction, prediction_length
 
@@ -195,6 +214,8 @@ class ASRDataset(BaseDataset):
         Returns:
             path, features, input_lengths, labels, label_lengths, pred_inp
         """
+#        if self.use_tf:
+#            print("use_tf in parse:", self.use_tf)
         data = self.tf_preprocess(path, audio, indices) if self.use_tf else self.preprocess(path, audio, indices)
         _, features, input_length, label, label_length, prediction, prediction_length = data
         return (
@@ -207,8 +228,10 @@ class ASRDataset(BaseDataset):
     # -------------------------------- CREATION -------------------------------------
 
     def process(self, dataset, batch_size):
+#        print(dataset.cardinality().numpy())   train-28539, eval-2703
         dataset = dataset.map(self.parse, num_parallel_calls=AUTOTUNE)
         self.total_steps = math_util.get_num_batches(self.total_steps, batch_size, drop_remainders=self.drop_remainder)
+#        print("after mapping: ", dataset.cardinality().numpy())   # train-28539, eval-2703
 
         if self.cache:
             dataset = dataset.cache()

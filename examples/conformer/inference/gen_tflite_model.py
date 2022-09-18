@@ -28,6 +28,7 @@ DEFAULT_YAML = os.path.join(os.path.abspath(os.path.dirname(__file__)), "config.
 
 def main(
     config: str = DEFAULT_YAML,
+#    config: str = "./h5_models/subword-conformer-config.yml",
     h5: str = None,
     subwords: bool = True,
     sentence_piece: bool = False,
