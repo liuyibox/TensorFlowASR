@@ -51,6 +51,9 @@ def main(
     conformer.summary(line_length=100)
     conformer.add_featurizers(speech_featurizer, text_featurizer)
 
+    print(conformer.inputs)
+    print(conformer.outputs)
+
     exec_helpers.convert_tflite(model=conformer, output=output)
 
 

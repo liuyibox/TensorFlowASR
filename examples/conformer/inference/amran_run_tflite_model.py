@@ -15,14 +15,13 @@
 import fire
 import tensorflow as tf
 import json
-import os
 
 from tensorflow_asr.featurizers.speech_featurizers import read_raw_audio
 
 
 def main(
     filename: str = "/home/liuyi/TensorFlowASR/dataset/LibriSpeech/test-clean/5639/40744/5639-40744-0008.flac",
-    tflite: str = "./tflite_models/librispeech_bs8_epoch19.tflite",
+    tflite: str = "./tflite_models/subword-conformer.latest.tflite",
 #    tflite: str = "./tflite_models/subsampling-conformer.latest.tflite",
 #    tflite: str = "",
     blank: int = 0,
@@ -65,5 +64,4 @@ def main(
 
 
 if __name__ == "__main__":
-    os.environ["CUDA_VISIBLE_DEVICES"] = "2"
     fire.Fire(main)

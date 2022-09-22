@@ -112,17 +112,17 @@ learning_config:
     epsilon: 1e-9
 
   running_config:
-    batch_size: 8
-    num_epochs: 20
+    batch_size: 2
+    num_epochs: 50
     checkpoint:
-      filepath: /home/liuyi/TensorFlowASR/Models/conformer/checkpoints/{epoch:02d}.h5
+      filepath: /home/liuyi/TensorFlowASR/examples/conformer/h5_models/checkpoints/{epoch:02d}.h5
       save_best_only: False
       save_weights_only: True
       save_freq: epoch
       verbose: 1
-    states_dir: /home/liuyi/TensorFlowASR/Models/conformer/states
+    states_dir: /home/liuyi/TensorFlowASR/examples/conformer/h5_models/states
     tensorboard:
-      log_dir: /home/liuyi/TensorFlowASR/Models/conformer/tensorboard
+      log_dir: /home/liuyi/TensorFlowASR/examples/conformer/h5_models/tensorboard
       histogram_freq: 1
       write_graph: True
       write_images: True
