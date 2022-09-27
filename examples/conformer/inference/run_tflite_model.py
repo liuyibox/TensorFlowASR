@@ -16,13 +16,15 @@ import fire
 import tensorflow as tf
 import json
 import os
+from pydub import AudioSegment
 
 from tensorflow_asr.featurizers.speech_featurizers import read_raw_audio
 
 
 def main(
-    filename: str = "/home/liuyi/TensorFlowASR/dataset/LibriSpeech/test-clean/5639/40744/5639-40744-0008.flac",
-    tflite: str = "./tflite_models/librispeech_bs8_epoch19.tflite",
+#    filename: str = "/home/liuyi/TensorFlowASR/dataset/LibriSpeech/test-clean/5639/40744/5639-40744-0008.flac",
+    filename: str = "/home/liuyi/audio_data/radu0.m4a",
+    tflite: str = "./tflite_models/librispeech_bs2_epoch29.tflite",
 #    tflite: str = "./tflite_models/subsampling-conformer.latest.tflite",
 #    tflite: str = "",
     blank: int = 0,
@@ -31,6 +33,12 @@ def main(
     statesize: int = 320,
 ):
     tflitemodel = tf.lite.Interpreter(model_path=tflite)
+
+    if os.path.splitext(filename)[1] == ".m4a":
+        track = AudioSegment.from_file(filename, "m4a")
+        wav_f_path = filename.replace("m4a", "wav")
+        wav_file_handle = track.export(wav_f_path, format='wav')
+        filename = wav_f_path
 
     signal = read_raw_audio(filename)
 #    print(type(signal))

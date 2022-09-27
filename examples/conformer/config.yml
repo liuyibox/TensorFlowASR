@@ -32,6 +32,7 @@ decoder_config:
   norm_score: True
   corpus_files:
     - /home/liuyi/TensorFlowASR/dataset/LibriSpeech/train-clean-100/transcripts.tsv
+    - /home/liuyi/TensorFlowASR/conformer_standalone/fine-tune_test_transcript.tsv
 
 model_config:
   name: conformer
@@ -75,7 +76,9 @@ learning_config:
           num_masks: 1
           mask_factor: 27
     data_paths:
-      - /home/liuyi/TensorFlowASR/dataset/LibriSpeech/train-clean-100/transcripts.tsv
+#      - /home/liuyi/TensorFlowASR/dataset/LibriSpeech/train-clean-100/transcripts.tsv
+      - /home/liuyi/TensorFlowASR/conformer_standalone/finetune-train_poped_tmp_transcripts.tsv
+#      - /home/liuyi/TensorFlowASR/conformer_standalone/finetune-test_transcripts.tsv
     tfrecords_dir: null
     shuffle: True
     cache: True
@@ -86,7 +89,9 @@ learning_config:
   eval_dataset_config:
     use_tf: True
     data_paths:
-      - /home/liuyi/TensorFlowASR/dataset/LibriSpeech/dev-clean/transcripts.tsv
+#      - /home/liuyi/TensorFlowASR/dataset/LibriSpeech/dev-clean/transcripts.tsv
+      - /home/liuyi/TensorFlowASR/conformer_standalone/finetune-train_poped_tmp_transcripts.tsv
+#      - /home/liuyi/TensorFlowASR/conformer_standalone/finetune-test_transcripts.tsv
     tfrecords_dir: null
     shuffle: False
     cache: True
@@ -97,7 +102,10 @@ learning_config:
   test_dataset_config:
     use_tf: True
     data_paths:
-      - /home/liuyi/TensorFlowASR/dataset/LibriSpeech/test-clean/transcripts.tsv
+#      - /home/liuyi/TensorFlowASR/conformer_standalone/finetune-test_transcripts.tsv
+#      - /home/liuyi/TensorFlowASR/dataset/LibriSpeech/test-clean/transcripts.tsv
+#      - /home/liuyi/TensorFlowASR/conformer_standalone/simple-test_transcripts.tsv
+      - /home/liuyi/TensorFlowASR/conformer_standalone/finetune-test_poped_tmp_transcripts.tsv
     tfrecords_dir: null
     shuffle: False
     cache: True
@@ -113,7 +121,7 @@ learning_config:
 
   running_config:
     batch_size: 2
-    num_epochs: 50
+    num_epochs: 2000
     checkpoint:
       filepath: /home/liuyi/TensorFlowASR/examples/conformer/h5_models/checkpoints/{epoch:02d}.h5
       save_best_only: False
