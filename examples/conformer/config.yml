@@ -124,9 +124,9 @@ learning_config:
     num_epochs: 2000
     checkpoint:
       filepath: /home/liuyi/TensorFlowASR/examples/conformer/h5_models/checkpoints/{epoch:02d}.h5
-      save_best_only: False
+      save_best_only: True
       save_weights_only: True
-      save_freq: epoch
+      save_freq: 2000
       verbose: 1
     states_dir: /home/liuyi/TensorFlowASR/examples/conformer/h5_models/states
     tensorboard:

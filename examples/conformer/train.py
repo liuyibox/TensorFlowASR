@@ -12,13 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import tensorflow as tf
+devices = [1]
+gpus = tf.config.list_physical_devices("GPU")
+visible_gpus = [gpus[i] for i in devices]
+tf.config.set_visible_devices(visible_gpus, "GPU")
+strategy = tf.distribute.MirroredStrategy()
+
 import os
 import fire
 import math
 from tensorflow_asr.utils import env_util
 
 logger = env_util.setup_environment()
-import tensorflow as tf
 
 from tensorflow_asr.configs.config import Config
 from tensorflow_asr.helpers import featurizer_helpers, dataset_helpers
@@ -43,7 +49,8 @@ def main(
     pretrained: str = None,
 ):
     tf.keras.backend.clear_session()
-#    tf.config.optimizer.set_experimental_options({"auto_mixed_precision": mxp})
+    tf.config.optimizer.set_experimental_options({"auto_mixed_precision": mxp})
+#    print(devices)
 
     config = Config(config)
 
@@ -73,26 +80,28 @@ def main(
         batch_size=bs,
     )
 
-#    print("conformer output vocab size: %s" % text_featurizer.num_classes)
-    conformer = Conformer(**config.model_config, vocabulary_size=text_featurizer.num_classes)
-    conformer.make(speech_featurizer.shape, prediction_shape=text_featurizer.prepand_shape, batch_size=global_batch_size)
-    if pretrained:
-        conformer.load_weights(pretrained, by_name=True, skip_mismatch=True)
-    conformer.summary(line_length=100)
-    optimizer = tf.keras.optimizers.Adam(
-        TransformerSchedule(
-            d_model=conformer.dmodel,
-            warmup_steps=config.learning_config.optimizer_config.pop("warmup_steps", 10000),
-            max_lr=(0.05 / math.sqrt(conformer.dmodel)),
-        ),
-        **config.learning_config.optimizer_config
-    )
-    conformer.compile(
-        optimizer=optimizer,
-        experimental_steps_per_execution=spx,
-        global_batch_size=global_batch_size,
-        blank=text_featurizer.blank,
-    )
+
+    with strategy.scope():
+    #    print("conformer output vocab size: %s" % text_featurizer.num_classes)
+        conformer = Conformer(**config.model_config, vocabulary_size=text_featurizer.num_classes)
+        conformer.make(speech_featurizer.shape, prediction_shape=text_featurizer.prepand_shape, batch_size=global_batch_size)
+        if pretrained:
+            conformer.load_weights(pretrained, by_name=True, skip_mismatch=True)
+        conformer.summary(line_length=100)
+        optimizer = tf.keras.optimizers.Adam(
+            TransformerSchedule(
+                d_model=conformer.dmodel,
+                warmup_steps=config.learning_config.optimizer_config.pop("warmup_steps", 10000),
+                max_lr=(0.05 / math.sqrt(conformer.dmodel)),
+            ),
+            **config.learning_config.optimizer_config
+        )
+        conformer.compile(
+            optimizer=optimizer,
+            experimental_steps_per_execution=spx,
+            global_batch_size=global_batch_size,
+            blank=text_featurizer.blank,
+        )
 
     callbacks = [
         tf.keras.callbacks.ModelCheckpoint(**config.learning_config.running_config.checkpoint),
@@ -111,6 +120,4 @@ def main(
 
 
 if __name__ == "__main__":
-    os.environ["CUDA_VISIBLE_DEVICES"]="1"
-    main()
-#    fire.Fire(main)
+    fire.Fire(main)
