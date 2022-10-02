@@ -12,12 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import tensorflow as tf
+
+devices = [2]
+gpus = tf.config.list_physical_devices("GPU")
+visible_gpus = [gpus[i] for i in devices]
+tf.config.set_visible_devices(visible_gpus, "GPU")
+strategy = tf.distribute.MirroredStrategy()
+
+
 import os
 import fire
 from tensorflow_asr.utils import env_util
 
 logger = env_util.setup_environment()
-import tensorflow as tf
 
 from tensorflow_asr.configs.config import Config
 from tensorflow_asr.helpers import dataset_helpers, exec_helpers, featurizer_helpers
@@ -51,18 +59,19 @@ def main(
         sentence_piece=sentence_piece,
     )
 
-    conformer = Conformer(**config.model_config, vocabulary_size=text_featurizer.num_classes)
-    conformer.make(speech_featurizer.shape)
-    conformer.load_weights(saved, by_name=True)
-    conformer.summary(line_length=100)
-    conformer.add_featurizers(speech_featurizer, text_featurizer)
-
-    test_dataset = dataset_helpers.prepare_testing_datasets(
-        config=config, speech_featurizer=speech_featurizer, text_featurizer=text_featurizer
-    )
-    batch_size = bs or config.learning_config.running_config.batch_size
-    test_data_loader = test_dataset.create(batch_size)
-
+    with strategy.scope():
+        conformer = Conformer(**config.model_config, vocabulary_size=text_featurizer.num_classes)
+        conformer.make(speech_featurizer.shape)
+        conformer.load_weights(saved, by_name=True)
+        conformer.summary(line_length=100)
+        conformer.add_featurizers(speech_featurizer, text_featurizer)
+    
+        test_dataset = dataset_helpers.prepare_testing_datasets(
+            config=config, speech_featurizer=speech_featurizer, text_featurizer=text_featurizer
+        )
+        batch_size = bs or config.learning_config.running_config.batch_size
+        test_data_loader = test_dataset.create(batch_size)
+    
     exec_helpers.run_testing(model=conformer, test_dataset=test_dataset, test_data_loader=test_data_loader, output=output)
 
 

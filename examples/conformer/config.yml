@@ -77,8 +77,9 @@ learning_config:
           mask_factor: 27
     data_paths:
 #      - /home/liuyi/TensorFlowASR/dataset/LibriSpeech/train-clean-100/transcripts.tsv
-      - /home/liuyi/TensorFlowASR/conformer_standalone/finetune-train_poped_tmp_transcripts.tsv
+#      - /home/liuyi/TensorFlowASR/conformer_standalone/finetune-train_poped_tmp_transcripts.tsv
 #      - /home/liuyi/TensorFlowASR/conformer_standalone/finetune-test_transcripts.tsv
+      - /home/liuyi/TensorFlowASR/conformer_standalone/finetune-train_transcripts.tsv
     tfrecords_dir: null
     shuffle: True
     cache: True
@@ -90,8 +91,9 @@ learning_config:
     use_tf: True
     data_paths:
 #      - /home/liuyi/TensorFlowASR/dataset/LibriSpeech/dev-clean/transcripts.tsv
-      - /home/liuyi/TensorFlowASR/conformer_standalone/finetune-train_poped_tmp_transcripts.tsv
+#      - /home/liuyi/TensorFlowASR/conformer_standalone/finetune-train_poped_tmp_transcripts.tsv
 #      - /home/liuyi/TensorFlowASR/conformer_standalone/finetune-test_transcripts.tsv
+      - /home/liuyi/TensorFlowASR/conformer_standalone/finetune-train_transcripts.tsv
     tfrecords_dir: null
     shuffle: False
     cache: True
@@ -105,7 +107,9 @@ learning_config:
 #      - /home/liuyi/TensorFlowASR/conformer_standalone/finetune-test_transcripts.tsv
 #      - /home/liuyi/TensorFlowASR/dataset/LibriSpeech/test-clean/transcripts.tsv
 #      - /home/liuyi/TensorFlowASR/conformer_standalone/simple-test_transcripts.tsv
-      - /home/liuyi/TensorFlowASR/conformer_standalone/finetune-test_poped_tmp_transcripts.tsv
+#      - /home/liuyi/TensorFlowASR/conformer_standalone/finetune-train_poped_tmp_transcripts.tsv
+#      - /home/liuyi/TensorFlowASR/conformer_standalone/finetune-test_poped_tmp_transcripts.tsv
+      - /home/liuyi/TensorFlowASR/conformer_standalone/finetune-test_concatenated_ss_transcripts.tsv
     tfrecords_dir: null
     shuffle: False
     cache: True
@@ -121,16 +125,25 @@ learning_config:
 
   running_config:
     batch_size: 2
-    num_epochs: 2000
+    num_epochs: 500
     checkpoint:
-      filepath: /home/liuyi/TensorFlowASR/examples/conformer/h5_models/checkpoints/{epoch:02d}.h5
-      save_best_only: True
+      #filepath: /home/liuyi/TensorFlowASR/examples/conformer/h5_models/checkpoints/{epoch:02d}.h5
+      #filepath: /home/liuyi/TensorFlowASR/examples/conformer/pretrained_librispeech_testsample_h5_models/checkpoints/{epoch:02d}.h5
+      #filepath: /home/liuyi/TensorFlowASR/examples/conformer/pretrained_librispeech_h5_models/checkpoints/{epoch:02d}.h5
+      filepath: /home/liuyi/TensorFlowASR/examples/conformer/pretrained_librispeech_train_ss_test_concatenated_h5_models/checkpoints/{epoch:02d}.h5
+      save_best_only: False
       save_weights_only: True
-      save_freq: 2000
+      save_freq: 200
       verbose: 1
-    states_dir: /home/liuyi/TensorFlowASR/examples/conformer/h5_models/states
+    #states_dir: /home/liuyi/TensorFlowASR/examples/conformer/h5_models/states
+    #states_dir: /home/liuyi/TensorFlowASR/examples/conformer/pretrained_librispeech_testsample_h5_models/states
+    #states_dir: /home/liuyi/TensorFlowASR/examples/conformer/pretrained_librispeech_h5_models/states
+    states_dir: /home/liuyi/TensorFlowASR/examples/conformer/pretrained_librispeech_train_ss_test_concatenated_h5_models/states
     tensorboard:
-      log_dir: /home/liuyi/TensorFlowASR/examples/conformer/h5_models/tensorboard
+      #log_dir: /home/liuyi/TensorFlowASR/examples/conformer/h5_models/tensorboard
+      #log_dir: /home/liuyi/TensorFlowASR/examples/conformer/pretrained_librispeech_testsample_h5_models/tensorboard
+      #log_dir: /home/liuyi/TensorFlowASR/examples/conformer/pretrained_librispeech_h5_models/tensorboard
+      log_dir: /home/liuyi/TensorFlowASR/examples/conformer/pretrained_librispeech_train_ss_test_concatenated_h5_models/tensorboard
       histogram_freq: 1
       write_graph: True
       write_images: True

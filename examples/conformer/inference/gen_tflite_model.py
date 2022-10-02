@@ -12,12 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import tensorflow as tf
+devices = [2]
+gpus = tf.config.list_physical_devices("GPU")
+visible_gpus = [gpus[i] for i in devices]
+tf.config.set_visible_devices(visible_gpus, "GPU")
+strategy = tf.distribute.MirroredStrategy()
+
 import os
 import fire
 from tensorflow_asr.utils import env_util
 
 logger = env_util.setup_environment()
-import tensorflow as tf
+#import tensorflow as tf
 
 from tensorflow_asr.configs.config import Config
 from tensorflow_asr.helpers import exec_helpers, featurizer_helpers
