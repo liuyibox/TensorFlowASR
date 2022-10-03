@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import tensorflow as tf
-devices = [2]
+devices = [0]
 gpus = tf.config.list_physical_devices("GPU")
 visible_gpus = [gpus[i] for i in devices]
 tf.config.set_visible_devices(visible_gpus, "GPU")
@@ -52,16 +52,17 @@ def main(
         sentence_piece=sentence_piece,
     )
 
-    conformer = Conformer(**config.model_config, vocabulary_size=text_featurizer.num_classes)
-    conformer.make(speech_featurizer.shape)
-    conformer.load_weights(h5, by_name=True)
-    conformer.summary(line_length=100)
-    conformer.add_featurizers(speech_featurizer, text_featurizer)
+    with strategy.scope():
+        conformer = Conformer(**config.model_config, vocabulary_size=text_featurizer.num_classes)
+        conformer.make(speech_featurizer.shape)
+        conformer.load_weights(h5, by_name=True)
+        conformer.summary(line_length=100)
+        conformer.add_featurizers(speech_featurizer, text_featurizer)
 
-    print(conformer.inputs)
-    print(conformer.outputs)
+#    print(conformer.inputs)
+#    print(conformer.outputs)
 
-    exec_helpers.convert_tflite(model=conformer, output=output)
+        exec_helpers.convert_tflite(model=conformer, output=output)
 
 
 if __name__ == "__main__":
