@@ -64,7 +64,7 @@ def readFile(file_path, encoding = None):
 def main(
 #    filename: str = "/home/liuyi/TensorFlowASR/dataset/LibriSpeech/test-clean/5639/40744/5639-40744-0008.flac",
     filename: str = "/home/liuyi/audio_data/radu0.m4a",
-    tflite: str = "./tflite_models/pretrained_librispeech_train_ss_test_concatenated_epoch50.tflite",
+    tflite: str = "./tflite_models/pretrained_librispeech_train_ss_test_concatenated_epoch50_noOptimize.tflite",
 #    tflite: str = "./tflite_models/subsampling-conformer.latest.tflite",
 #    tflite: str = "",
     blank: int = 0,
@@ -73,7 +73,7 @@ def main(
     statesize: int = 320,
 ):
 
-    concatenated_ss_audios_path = "/home/liuyi/audio_data/sample100/signs_symptoms_audio_concatenated/"
+    concatenated_ss_audios_path = "/home/liuyi/audio_data/sample100/signs_symptoms_audio_concatenated"
     true_text_path = "/home/liuyi/tflite_experimental/emsBert/eval_pretrain/fitted_desc_sampled100e2e_test.tsv"
 
     true_lines = readFile(true_text_path)
@@ -91,80 +91,80 @@ def main(
 #            true_lines = true_lines[1:]  # skip header    
     transcribed_e2e_lines = []
     asr_wer_lines = []
-
-#    for idx, (true_line, asr_true_line) in enumerate(zip(true_lines, asr_true_lines)):
-    idx = 0
-    true_line = true_lines[0]
-    print(true_line)
-    asr_true_line = asr_true_lines[0]
-    audio_f = "sss" + str(idx+1) + ".wav"
-    file_name = os.path.join(concatenated_ss_audios_path, audio_f)
-    print(file_name)
-    
-#    with strategy.scope():
     tflitemodel = tf.lite.Interpreter(model_path=tflite)    
     input_details = tflitemodel.get_input_details()
     output_details = tflitemodel.get_output_details()
-
-            
-    signal = read_raw_audio(filename)
-    tflitemodel.resize_tensor_input(input_details[0]["index"], signal.shape)
-    tflitemodel.allocate_tensors()
-    tflitemodel.set_tensor(input_details[0]["index"], signal)
-    tflitemodel.set_tensor(input_details[1]["index"], tf.constant(blank, dtype=tf.int32))
-    tflitemodel.set_tensor(input_details[2]["index"], tf.zeros([num_rnns, nstates, 1, statesize], dtype=tf.float32))
-    tflitemodel.invoke()
-    hyp0 = tflitemodel.get_tensor(output_details[0]["index"])
-    hyp1 = tflitemodel.get_tensor(output_details[1]["index"])
-    hyp2 = tflitemodel.get_tensor(output_details[2]["index"])
     
-    print("".join([chr(u) for u in hyp0]))
 
+    for idx, (true_line, asr_true_line) in enumerate(zip(true_lines, asr_true_lines)):
+#    idx = 0
+#    true_line = true_lines[0]
+#    print(true_line)
+#    asr_true_line = asr_true_lines[0]
+        audio_f = "sss" + str(idx+1) + ".wav"
+        filename = os.path.join(concatenated_ss_audios_path, audio_f)
+#    print(file_name)
     
-#    true_label = true_line.split("\t")[1]
-#    pred_text = "".join([chr(u) for u in hyp0])
-#    transcribed_e2e_lines.append([pred_text, true_label])
-#
-#    asr_line_record = asr_true_line.split("\t")
-##    print("true text: ", asr_line_record[-1])
-##    print("pred text: ", pred_text)
-#    asr_line_record.append(pred_text)
-#    asr_line_record.append("")
-#    asr_wer_lines.append(asr_line_record)
-#   
-#    # this is for downstream emsBert and emsBert.tflite
-#    transcribed_e2e_lines.insert(0, ["ps_pi_as_si_desc_c_mml_c", "label"])
-#    file_path = os.path.join("/home/liuyi/tflite_experimental/emsBert/eval_pretrain", "fitted_desc_sampled100e2e_conformerlite_transcribed_test.tsv")
-#    write2DListFile(file_path, transcribed_e2e_lines, line_sep = "\t")
-#    print(file_path, len(transcribed_e2e_lines))
-#
-#
-#    asr_wer_lines.insert(0, ["PATH","DURATION","GROUNDTRUTH","GREEDY","BEAMSEARCH"])
-#    file_path = os.path.join("/home/liuyi/tflite_experimental/emsBert/eval_pretrain", "sampled100e2e_conformerlite_transcribed.output")
-#    write2DListFile(file_path, asr_wer_lines, line_sep = "\t")
-#    # print(file_path, len(asr_wer_lines))
-#    logger.info(f"Evaluating result from {file_path} ...")
-#    metrics = {
-#        "greedy_wer": ErrorRate(wer, name="greedy_wer", dtype=tf.float32),
-#        "greedy_cer": ErrorRate(cer, name="greedy_cer", dtype=tf.float32),
-#        "beamsearch_wer": ErrorRate(wer, name="beamsearch_wer", dtype=tf.float32),
-#        "beamsearch_cer": ErrorRate(cer, name="beamsearch_cer", dtype=tf.float32),
-#    }
-#
-#    asr_wer_lines = asr_wer_lines[1:]
-#    for eachline in tqdm(asr_wer_lines):
-#        #_, _, groundtruth, greedy, beamsearch = eachline.split("\t")
-#        _, _, groundtruth, greedy, beamsearch = eachline
-#        groundtruth = tf.convert_to_tensor([groundtruth], dtype=tf.string)
-#        greedy = tf.convert_to_tensor([greedy], dtype=tf.string)
-#        beamsearch = tf.convert_to_tensor([beamsearch], dtype=tf.string)
-#        metrics["greedy_wer"].update_state(decode=greedy, target=groundtruth)
-#        metrics["greedy_cer"].update_state(decode=greedy, target=groundtruth)
-#        metrics["beamsearch_wer"].update_state(decode=beamsearch, target=groundtruth)
-#        metrics["beamsearch_cer"].update_state(decode=beamsearch, target=groundtruth)
-#    for key, value in metrics.items():
-#        print(key, value.result().numpy())
-#        logger.info(f"{key}: {value.result().numpy()}")
+#    with strategy.scope():
+                
+        signal = read_raw_audio(filename)
+        tflitemodel.resize_tensor_input(input_details[0]["index"], signal.shape)
+        tflitemodel.allocate_tensors()
+        tflitemodel.set_tensor(input_details[0]["index"], signal)
+        tflitemodel.set_tensor(input_details[1]["index"], tf.constant(blank, dtype=tf.int32))
+        tflitemodel.set_tensor(input_details[2]["index"], tf.zeros([num_rnns, nstates, 1, statesize], dtype=tf.float32))
+        tflitemodel.invoke()
+        hyp0 = tflitemodel.get_tensor(output_details[0]["index"])
+        hyp1 = tflitemodel.get_tensor(output_details[1]["index"])
+        hyp2 = tflitemodel.get_tensor(output_details[2]["index"])
+        
+        # print("".join([chr(u) for u in hyp0]))
+    
+    
+        true_label = true_line.split("\t")[1]
+        pred_text = "".join([chr(u) for u in hyp0])
+        transcribed_e2e_lines.append([pred_text, true_label])
+    
+        asr_line_record = asr_true_line.split("\t")
+    #    print("true text: ", asr_line_record[-1])
+    #    print("pred text: ", pred_text)
+        asr_line_record.append(pred_text)
+        asr_line_record.append("")
+        asr_wer_lines.append(asr_line_record)
+       
+    # this is for downstream emsBert and emsBert.tflite
+    transcribed_e2e_lines.insert(0, ["ps_pi_as_si_desc_c_mml_c", "label"])
+    file_path = os.path.join("/home/liuyi/tflite_experimental/emsBert/eval_pretrain", "fitted_desc_sampled100e2e_conformerlite_transcribed_test.tsv")
+    write2DListFile(file_path, transcribed_e2e_lines, line_sep = "\t")
+    print(file_path, len(transcribed_e2e_lines))
+    
+    
+    asr_wer_lines.insert(0, ["PATH","DURATION","GROUNDTRUTH","GREEDY","BEAMSEARCH"])
+    file_path = os.path.join("./sampled100e2e_conformerlite_transcribed.output")
+    write2DListFile(file_path, asr_wer_lines, line_sep = "\t")
+    print(file_path, len(asr_wer_lines))
+    logger.info(f"Evaluating result from {file_path} ...")
+    metrics = {
+        "greedy_wer": ErrorRate(wer, name="greedy_wer", dtype=tf.float32),
+        "greedy_cer": ErrorRate(cer, name="greedy_cer", dtype=tf.float32),
+        "beamsearch_wer": ErrorRate(wer, name="beamsearch_wer", dtype=tf.float32),
+        "beamsearch_cer": ErrorRate(cer, name="beamsearch_cer", dtype=tf.float32),
+    }
+    
+    asr_wer_lines = asr_wer_lines[1:]
+    for eachline in tqdm(asr_wer_lines):
+        #_, _, groundtruth, greedy, beamsearch = eachline.split("\t")
+        _, _, groundtruth, greedy, beamsearch = eachline
+        groundtruth = tf.convert_to_tensor([groundtruth], dtype=tf.string)
+        greedy = tf.convert_to_tensor([greedy], dtype=tf.string)
+        beamsearch = tf.convert_to_tensor([beamsearch], dtype=tf.string)
+        metrics["greedy_wer"].update_state(decode=greedy, target=groundtruth)
+        metrics["greedy_cer"].update_state(decode=greedy, target=groundtruth)
+        metrics["beamsearch_wer"].update_state(decode=beamsearch, target=groundtruth)
+        metrics["beamsearch_cer"].update_state(decode=beamsearch, target=groundtruth)
+    for key, value in metrics.items():
+        print(key, value.result().numpy())
+        logger.info(f"{key}: {value.result().numpy()}")
         
 if __name__ == "__main__":
     fire.Fire(main)

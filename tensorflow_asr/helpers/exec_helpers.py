@@ -4,6 +4,8 @@ from tensorflow_asr.datasets.asr_dataset import ASRSliceDataset
 
 from tensorflow_asr.models.base_model import BaseModel
 from tensorflow_asr.utils import file_util, app_util
+import tempfile
+import os
 
 logger = tf.get_logger()
 
@@ -37,10 +39,20 @@ def convert_tflite(
     model: BaseModel,
     output: str,
 ):
+
+#    with tempfile.TemporaryDirectory() as temp_dir_name:
+#        save_path = os.path.join(temp_dir_name, 'saved_model')
+#        print("saving saved_model and loading tflite from %s" % save_path)
+#        model.save(save_path, include_optimizer=False, save_format='tf')
+#        converter = tf.lite.TFLiteConverter.from_saved_model(save_path)
+
+#    converter = tf.lite.TFLiteConverter.from_saved_model("/home/liuyi/TensorFlowASR/examples/conformer/saved_models/")
+
     concrete_func = model.make_tflite_function().get_concrete_function()
     converter = tf.lite.TFLiteConverter.from_concrete_functions([concrete_func])
     converter.experimental_new_converter = True
-    converter.optimizations = [tf.lite.Optimize.DEFAULT]
+#    converter.optimizations = None
+#    converter.optimizations = [tf.lite.Optimize.DEFAULT]
     converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS, tf.lite.OpsSet.SELECT_TF_OPS]
     tflite_model = converter.convert()
 

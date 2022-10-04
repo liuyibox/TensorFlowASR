@@ -20,8 +20,10 @@ from tensorflow_asr.featurizers.speech_featurizers import read_raw_audio
 
 
 def main(
-    filename: str = "/home/liuyi/TensorFlowASR/dataset/LibriSpeech/test-clean/5639/40744/5639-40744-0008.flac",
-    tflite: str = "./tflite_models/subword-conformer.latest.tflite",
+    #filename: str = "/home/liuyi/TensorFlowASR/dataset/LibriSpeech/test-clean/5639/40744/5639-40744-0008.flac",
+    filename: str = "/home/liuyi/audio_data/sample100/signs_symptoms_audio_concatenated/sss81.wav",
+    tflite: str = "./tflite_models/pretrained_librispeech_train_ss_test_concatenated_epoch50_noOptimize.tflite",
+#    tflite: str = "./tflite_models/pretrained_librispeech_train_ss_test_concatenated_epoch50.tflite",
 #    tflite: str = "./tflite_models/subsampling-conformer.latest.tflite",
 #    tflite: str = "",
     blank: int = 0,
