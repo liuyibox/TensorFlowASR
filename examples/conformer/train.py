@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import tensorflow as tf
-devices = [0]
+devices = [2]
 gpus = tf.config.list_physical_devices("GPU")
 visible_gpus = [gpus[i] for i in devices]
 tf.config.set_visible_devices(visible_gpus, "GPU")
@@ -44,7 +44,7 @@ def main(
     spx: int = 1,
     metadata: str = None,
     static_length: bool = False,
-    devices: list = [0,1,2],
+    devices: list = [2],
     mxp: bool = True,
     pretrained: str = None,
 ):
