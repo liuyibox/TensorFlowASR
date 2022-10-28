@@ -13,11 +13,11 @@
 # limitations under the License.
 
 import tensorflow as tf
-devices = [2]
+devices = [0]
 gpus = tf.config.list_physical_devices("GPU")
 visible_gpus = [gpus[i] for i in devices]
 tf.config.set_visible_devices(visible_gpus, "GPU")
-strategy = tf.distribute.MirroredStrategy()
+#strategy = tf.distribute.MirroredStrategy()
 
 import os
 import fire
@@ -33,7 +33,8 @@ from tensorflow_asr.optimizers.schedules import TransformerSchedule
 
 
 DEFAULT_YAML = os.path.join(os.path.abspath(os.path.dirname(__file__)), "config.yml")
-
+from datetime import datetime
+import argparse
 
 def main(
     config: str = DEFAULT_YAML,
@@ -44,10 +45,14 @@ def main(
     spx: int = 1,
     metadata: str = None,
     static_length: bool = False,
-    devices: list = [2],
+#    devices: list = [2],
     mxp: bool = True,
     pretrained: str = None,
 ):
+
+      
+    time_s = datetime.now()
+
     tf.keras.backend.clear_session()
     tf.config.optimizer.set_experimental_options({"auto_mixed_precision": mxp})
 #    print(devices)
@@ -81,30 +86,31 @@ def main(
     )
 
 
-    with strategy.scope():
+#    with strategy.scope():
     #    print("conformer output vocab size: %s" % text_featurizer.num_classes)
-        conformer = Conformer(**config.model_config, vocabulary_size=text_featurizer.num_classes)
-        conformer.make(speech_featurizer.shape, prediction_shape=text_featurizer.prepand_shape, batch_size=global_batch_size)
-        if pretrained:
-            conformer.load_weights(pretrained, by_name=True, skip_mismatch=True)
-        conformer.summary(line_length=100)
-        optimizer = tf.keras.optimizers.Adam(
-            TransformerSchedule(
-                d_model=conformer.dmodel,
-                warmup_steps=config.learning_config.optimizer_config.pop("warmup_steps", 10000),
-                max_lr=(0.05 / math.sqrt(conformer.dmodel)),
-            ),
-            **config.learning_config.optimizer_config
-        )
-        conformer.compile(
-            optimizer=optimizer,
-            experimental_steps_per_execution=spx,
-            global_batch_size=global_batch_size,
-            blank=text_featurizer.blank,
-        )
+    conformer = Conformer(**config.model_config, vocabulary_size=text_featurizer.num_classes)
+    conformer.make(speech_featurizer.shape, prediction_shape=text_featurizer.prepand_shape, batch_size=global_batch_size)
+    if pretrained:
+        conformer.load_weights(pretrained, by_name=True, skip_mismatch=True)
+    conformer.summary(line_length=100)
+    optimizer = tf.keras.optimizers.Adam(
+        TransformerSchedule(
+            d_model=conformer.dmodel,
+            warmup_steps=config.learning_config.optimizer_config.pop("warmup_steps", 10000),
+            max_lr=(0.05 / math.sqrt(conformer.dmodel)),
+        ),
+        **config.learning_config.optimizer_config
+    )
+    conformer.compile(
+        optimizer=optimizer,
+        experimental_steps_per_execution=spx,
+        global_batch_size=global_batch_size,
+        blank=text_featurizer.blank,
+    )
 
     callbacks = [
         tf.keras.callbacks.ModelCheckpoint(**config.learning_config.running_config.checkpoint),
+        tf.keras.callbacks.EarlyStopping(patience=10, verbose=1, restore_best_weights=True),
         tf.keras.callbacks.experimental.BackupAndRestore(config.learning_config.running_config.states_dir),
         tf.keras.callbacks.TensorBoard(**config.learning_config.running_config.tensorboard),
     ]
@@ -119,5 +125,19 @@ def main(
     )
 
 
+    time_t = datetime.now() - time_s
+    print("This run takes %s" % time_t)    
+
 if __name__ == "__main__":
-    fire.Fire(main)
+
+    parser = argparse.ArgumentParser(description = "control the functions for conformer")
+#    parser.add_argument("--output", action='store', type=str, default = "test.tsv", help="the test output for post processing")
+    parser.add_argument("--pretrained", action='store', type=str, default = "/slot1/asr_models/tensorflowasr_librispeech_models/tensorflowasr_pretrained/subword-conformer/pretrained-subword-conformer/latest.h5", help="pretrained model")
+#    parser.add_argument("--cuda_device", action='store', type=str, default = "0", help="indicate the cuda device number")
+    parser.add_argument("--config", action='store', type=str, default = "config.yml", help="the configuration file for testing")
+
+    args = parser.parse_args()
+#    os.environ['CUDA_VISIBLE_DEVICES'] = args.cuda_device
+
+    main(config=args.config, pretrained=args.pretrained)
+

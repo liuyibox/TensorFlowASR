@@ -19,22 +19,22 @@ speech_config:
   num_feature_bins: 80
   feature_type: log_mel_spectrogram
   preemphasis: 0.97
-  normalize_signal: True
-  normalize_feature: True
-  normalize_per_frame: True
-  center: False
-  top_db: null
+  normalize_signal: False
+  normalize_feature: False
+  normalize_per_frame: False
+#  center: False
+#  top_db: null
 
 decoder_config:
-  vocabulary: ./vocabularies/librispeech/librispeech_train_4_1030.subwords
+  vocabulary: /home/liuyi/TensorFlowASR/vocabularies/librispeech/librispeech_train_10_1008.subwords
   target_vocab_size: 1024
   max_subword_length: 4
   blank_at_zero: True
-  beam_width: 5
+  beam_width: 0
   norm_score: True
 
 model_config:
-  name: rnn_transducer
+  name: streaming_transducer
   encoder_reductions:
     0: 3
     1: 2
@@ -45,18 +45,22 @@ model_config:
   encoder_layer_norm: True
   prediction_embed_dim: 320
   prediction_embed_dropout: 0.0
-  prediction_num_rnns: 2
+  prediction_num_rnns: 1
   prediction_rnn_units: 1024
   prediction_rnn_type: lstm
   prediction_projection_units: 320
   prediction_layer_norm: True
-  joint_dim: 320
+  joint_dim: 640
+  prejoint_linear: True
+  postjoint_linear: False
   joint_activation: tanh
+  joint_mode: add
 
 learning_config:
   train_dataset_config:
     use_tf: True
     augmentation_config:
+      prob: 0.75
       feature_augment:
         time_masking:
           num_masks: 10
@@ -66,7 +70,7 @@ learning_config:
           num_masks: 1
           mask_factor: 27
     data_paths:
-      - H:/MLDL/Datasets/ASR/Raw/LibriSpeech/train-clean-100/transcripts.tsv
+      - /home/liuyi/TensorFlowASR/conformer_standalone/finetune-train_transcripts.tsv
     tfrecords_dir: null
     shuffle: True
     cache: True
@@ -77,24 +81,25 @@ learning_config:
   eval_dataset_config:
     use_tf: True
     data_paths:
-      - H:/MLDL/Datasets/ASR/Raw/LibriSpeech/dev-clean/transcripts.tsv
+      - /home/liuyi/TensorFlowASR/conformer_standalone/finetune-test_concatenated_ss_transcripts.tsv
     tfrecords_dir: null
     shuffle: False
-    cache: True
+    cache: False
     buffer_size: 100
     drop_remainder: True
     stage: eval
 
   test_dataset_config:
     use_tf: True
-    data_paths:
-      - H:/MLDL/Datasets/ASR/Raw/LibriSpeech/test-clean/transcripts.tsv
+    data_paths: 
+      - /home/liuyi/TensorFlowASR/conformer_standalone/finetune-test_concatenated_ss_transcripts.tsv    
+#      - /slot1/audio_dataset/LibriSpeech/test-clean/transcripts.tsv
     tfrecords_dir: null
     shuffle: False
-    cache: True
+    cache: False
     buffer_size: 100
-    drop_remainder: True
-    stage: test
+#    drop_remainder: False
+#    stage: test
 
   optimizer_config:
     class_name: adam
@@ -103,15 +108,17 @@ learning_config:
 
   running_config:
     batch_size: 2
-    num_epochs: 20
+    num_epochs: 100
     checkpoint:
-      filepath: D:/Models/local/rnn_transducer/checkpoints/{epoch:02d}.h5
-      save_best_only: False
+      filepath: /slot1/asr_models/librispeech_rnnt_ems/checkpoints/{epoch:02d}.h5
+      save_best_only: True
       save_weights_only: True
       save_freq: epoch
-    states_dir: D:/Models/local/rnn_transducer/states
+      verbose: 1
+#      monitor: val_loss
+    states_dir: /slot1/asr_models/librispeech_rnnt_ems/states
     tensorboard:
-      log_dir: D:/Models/local/rnn_transducer/tensorboard
+      log_dir: /slot1/asr_models/librispeech_rnnt_ems/tensorboard
       histogram_freq: 1
       write_graph: True
       write_images: True

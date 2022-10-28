@@ -12,14 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import tensorflow as tf
+devices = [1]
+gpus = tf.config.list_physical_devices("GPU")
+visible_gpus = [gpus[i] for i in devices]
+tf.config.set_visible_devices(visible_gpus, "GPU")
+
 import os
 import math
-import fire
+#import fire
 from tensorflow_asr.utils import env_util
 
 logger = env_util.setup_environment()
-import tensorflow as tf
-
 
 from tensorflow_asr.configs.config import Config
 from tensorflow_asr.helpers import featurizer_helpers, dataset_helpers
@@ -27,7 +31,8 @@ from tensorflow_asr.models.transducer.contextnet import ContextNet
 from tensorflow_asr.optimizers.schedules import TransformerSchedule
 
 DEFAULT_YAML = os.path.join(os.path.abspath(os.path.dirname(__file__)), "config.yml")
-
+from datetime import datetime
+import argparse
 
 def main(
     config: str = DEFAULT_YAML,
@@ -38,13 +43,16 @@ def main(
     spx: int = 1,
     metadata: str = None,
     static_length: bool = False,
-    devices: list = [0],
+    devices: list = [1],
     mxp: bool = False,
     pretrained: str = None,
 ):
+
+    time_s = datetime.now()
+
     tf.keras.backend.clear_session()
     tf.config.optimizer.set_experimental_options({"auto_mixed_precision": mxp})
-    strategy = env_util.setup_strategy(devices)
+#    strategy = env_util.setup_strategy(devices)
 
     config = Config(config)
 
@@ -70,33 +78,34 @@ def main(
         config=config,
         train_dataset=train_dataset,
         eval_dataset=eval_dataset,
-        strategy=strategy,
+#        strategy=strategy,
         batch_size=bs,
     )
 
-    with strategy.scope():
-        contextnet = ContextNet(**config.model_config, vocabulary_size=text_featurizer.num_classes)
-        contextnet.make(speech_featurizer.shape, prediction_shape=text_featurizer.prepand_shape, batch_size=global_batch_size)
-        if pretrained:
-            contextnet.load_weights(pretrained, by_name=True, skip_mismatch=True)
-        contextnet.summary(line_length=100)
-        optimizer = tf.keras.optimizers.Adam(
-            TransformerSchedule(
-                d_model=contextnet.dmodel,
-                warmup_steps=config.learning_config.optimizer_config.pop("warmup_steps", 10000),
-                max_lr=(0.05 / math.sqrt(contextnet.dmodel)),
-            ),
-            **config.learning_config.optimizer_config
-        )
-        contextnet.compile(
-            optimizer=optimizer,
-            experimental_steps_per_execution=spx,
-            global_batch_size=global_batch_size,
-            blank=text_featurizer.blank,
-        )
+#    with strategy.scope():
+    contextnet = ContextNet(**config.model_config, vocabulary_size=text_featurizer.num_classes)
+    contextnet.make(speech_featurizer.shape, prediction_shape=text_featurizer.prepand_shape, batch_size=global_batch_size)
+    if pretrained:
+        contextnet.load_weights(pretrained, by_name=True, skip_mismatch=True)
+    contextnet.summary(line_length=100)
+    optimizer = tf.keras.optimizers.Adam(
+        TransformerSchedule(
+            d_model=contextnet.dmodel,
+            warmup_steps=config.learning_config.optimizer_config.pop("warmup_steps", 10000),
+            max_lr=(0.05 / math.sqrt(contextnet.dmodel)),
+        ),
+        **config.learning_config.optimizer_config
+    )
+    contextnet.compile(
+        optimizer=optimizer,
+        experimental_steps_per_execution=spx,
+        global_batch_size=global_batch_size,
+        blank=text_featurizer.blank,
+    )
 
     callbacks = [
         tf.keras.callbacks.ModelCheckpoint(**config.learning_config.running_config.checkpoint),
+        tf.keras.callbacks.EarlyStopping(patience=10, verbose=1, restore_best_weights=True),
         tf.keras.callbacks.experimental.BackupAndRestore(config.learning_config.running_config.states_dir),
         tf.keras.callbacks.TensorBoard(**config.learning_config.running_config.tensorboard),
     ]
@@ -111,5 +120,16 @@ def main(
     )
 
 
+    time_t = datetime.now() - time_s
+    print("This run takes %s" % time_t) 
+
 if __name__ == "__main__":
-    fire.Fire(main)
+
+    parser = argparse.ArgumentParser(description = "control the functions for conformer")
+    parser.add_argument("--pretrained", action='store', type=str, default = "/slot1/asr_models/tensorflowasr_librispeech_models/tensorflowasr_pretrained/subword-contextnet/1008_86.h5", help="pretrained model")
+    parser.add_argument("--config", action='store', type=str, default = "1008_config.yml", help="the configuration file for testing")
+
+    args = parser.parse_args()
+
+    main(config=args.config, pretrained=args.pretrained)
+
