@@ -94,14 +94,14 @@ learning_config:
     batch_size: 2
     num_epochs: 100
     checkpoint:
-      filepath: /slot1/asr_models/librispeech_conformer_ems/checkpoints/{epoch:02d}.h5
+      filepath: /slot1/asr_models/conformer_ems/checkpoints/{epoch:02d}.h5
       save_best_only: True
       save_weights_only: True
       save_freq: epoch
       verbose: 1
-    states_dir: /slot1/asr_models/librispeech_conformer_ems/states
+    states_dir: /slot1/asr_models/conformer_ems/states
     tensorboard:
-      log_dir: /slot1/asr_models/librispeech_conformer_ems/tensorboard
+      log_dir: /slot1/asr_models/conformer_ems/tensorboard
       histogram_freq: 1
       write_graph: True
       write_images: True

@@ -126,7 +126,8 @@ def main(
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description = "control the functions for conformer")
-    parser.add_argument("--pretrained", action='store', type=str, default = "/slot1/asr_models/tensorflowasr_librispeech_models/tensorflowasr_pretrained/subword-contextnet/1008_86.h5", help="pretrained model")
+    parser.add_argument("--pretrained", action='store', type=str, default = None, help="pretrained model")
+#    parser.add_argument("--pretrained", action='store', type=str, default = "/slot1/asr_models/tensorflowasr_librispeech_models/tensorflowasr_pretrained/subword-contextnet/1008_86.h5", help="pretrained model")
     parser.add_argument("--config", action='store', type=str, default = "1008_config.yml", help="the configuration file for testing")
 
     args = parser.parse_args()

@@ -131,13 +131,11 @@ def main(
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description = "control the functions for conformer")
-#    parser.add_argument("--output", action='store', type=str, default = "test.tsv", help="the test output for post processing")
-    parser.add_argument("--pretrained", action='store', type=str, default = "/slot1/asr_models/tensorflowasr_librispeech_models/tensorflowasr_pretrained/subword-conformer/pretrained-subword-conformer/latest.h5", help="pretrained model")
-#    parser.add_argument("--cuda_device", action='store', type=str, default = "0", help="indicate the cuda device number")
+#    parser.add_argument("--pretrained", action='store', type=str, default = "/slot1/asr_models/tensorflowasr_librispeech_models/tensorflowasr_pretrained/subword-conformer/pretrained-subword-conformer/latest.h5", help="pretrained model")
+    parser.add_argument("--pretrained", action='store', type=str, default = None, help="pretrained model")
     parser.add_argument("--config", action='store', type=str, default = "config.yml", help="the configuration file for testing")
 
     args = parser.parse_args()
-#    os.environ['CUDA_VISIBLE_DEVICES'] = args.cuda_device
 
     main(config=args.config, pretrained=args.pretrained)
 
