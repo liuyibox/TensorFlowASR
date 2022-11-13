@@ -15,6 +15,7 @@
 import tensorflow as tf
 devices = [1]
 gpus = tf.config.list_physical_devices("GPU")
+print("gpus =", gpus)
 visible_gpus = [gpus[i] for i in devices]
 tf.config.set_visible_devices(visible_gpus, "GPU")
 
@@ -131,6 +132,8 @@ if __name__ == "__main__":
     parser.add_argument("--config", action='store', type=str, default = "1008_config.yml", help="the configuration file for testing")
 
     args = parser.parse_args()
+
+    print("args.config =", args.config)
 
     main(config=args.config, pretrained=args.pretrained)
 

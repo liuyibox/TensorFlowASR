@@ -11,6 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+import os
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+
 import tensorflow as tf
 from tqdm import tqdm
 
@@ -29,7 +33,6 @@ import fire
 #import tensorflow as tf
 from tensorflow_asr.utils.file_util import read_file
 import json
-import os
 from pydub import AudioSegment
 
 from tensorflow_asr.featurizers.speech_featurizers import read_raw_audio
@@ -63,8 +66,8 @@ def readFile(file_path, encoding = None):
 
 def main(
 #    filename: str = "/home/liuyi/TensorFlowASR/dataset/LibriSpeech/test-clean/5639/40744/5639-40744-0008.flac",
-    filename: str = "/home/liuyi/audio_data/radu0.m4a",
-    tflite: str = "./tflite_models/pretrained_librispeech_train_ss_test_concatenated_epoch50_noOptimize.tflite",
+#    filename: str = "/home/liuyi/audio_data/radu0.m4a",
+    tflite: str = "./tflite_models/pretrained_librispeech_train_ss_test_concatenated_epoch50_noOptimize.tflite", # +++++ .tflite model
 #    tflite: str = "./tflite_models/subsampling-conformer.latest.tflite",
 #    tflite: str = "",
     blank: int = 0,
@@ -73,7 +76,7 @@ def main(
     statesize: int = 320,
 ):
 
-    concatenated_ss_audios_path = "/home/liuyi/audio_data/sample100/signs_symptoms_audio_concatenated"
+    concatenated_ss_audios_path = "/home/liuyi/audio_data/sample100/signs_symptoms_audio_concatenated" # +++++ audio path
     true_text_path = "/home/liuyi/tflite_experimental/emsBert/eval_pretrain/fitted_desc_sampled100e2e_test.tsv"
 
     true_lines = readFile(true_text_path)
@@ -96,7 +99,7 @@ def main(
     output_details = tflitemodel.get_output_details()
     
 
-    for idx, (true_line, asr_true_line) in enumerate(zip(true_lines, asr_true_lines)):
+    for idx, (true_line, asr_true_line) in enumerate(tqdm(zip(true_lines, asr_true_lines))):
 #    idx = 0
 #    true_line = true_lines[0]
 #    print(true_line)
@@ -133,8 +136,9 @@ def main(
         asr_wer_lines.append(asr_line_record)
        
     # this is for downstream emsBert and emsBert.tflite
-    transcribed_e2e_lines.insert(0, ["ps_pi_as_si_desc_c_mml_c", "label"])
-    file_path = os.path.join("/home/liuyi/tflite_experimental/emsBert/eval_pretrain", "fitted_desc_sampled100e2e_conformerlite_transcribed_test.tsv")
+#    transcribed_e2e_lines.insert(0, ["ps_pi_as_si_desc_c_mml_c", "label"])
+    file_path = "sampled_liuyi_100e2e_conformerlite_transcribed_test.tsv"
+#    file_path = os.path.join("/home/liuyi/tflite_experimental/emsBert/eval_pretrain", "fitted_desc_sampled100e2e_conformerlite_transcribed_test.tsv")
     write2DListFile(file_path, transcribed_e2e_lines, line_sep = "\t")
     print(file_path, len(transcribed_e2e_lines))
     

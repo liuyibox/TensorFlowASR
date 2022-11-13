@@ -13,13 +13,17 @@
 # limitations under the License.
 
 import tensorflow as tf
-devices = [0]
-gpus = tf.config.list_physical_devices("GPU")
-visible_gpus = [gpus[i] for i in devices]
-tf.config.set_visible_devices(visible_gpus, "GPU")
-strategy = tf.distribute.MirroredStrategy()
-
 import os
+
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+
+#devices = [-1]
+#gpus = tf.config.list_physical_devices("GPU")
+#visible_gpus = [-1]
+#visible_gpus = [gpus[i] for i in devices]
+#tf.config.set_visible_devices(visible_gpus, "GPU")
+#strategy = tf.distribute.MirroredStrategy()
+
 import fire
 from tensorflow_asr.utils import env_util
 
@@ -31,7 +35,8 @@ from tensorflow_asr.helpers import exec_helpers, featurizer_helpers
 from tensorflow_asr.models.transducer.conformer import Conformer
 
 DEFAULT_YAML = os.path.join(os.path.abspath(os.path.dirname(__file__)), "config.yml")
-
+from datetime import datetime
+import argparse
 
 def main(
     config: str = DEFAULT_YAML,
@@ -52,18 +57,33 @@ def main(
         sentence_piece=sentence_piece,
     )
 
-    with strategy.scope():
-        conformer = Conformer(**config.model_config, vocabulary_size=text_featurizer.num_classes)
-        conformer.make(speech_featurizer.shape)
-        conformer.load_weights(h5, by_name=True)
-        conformer.summary(line_length=100)
-        conformer.add_featurizers(speech_featurizer, text_featurizer)
+#    with strategy.scope():
+    conformer = Conformer(**config.model_config, vocabulary_size=text_featurizer.num_classes)
+    conformer.make(speech_featurizer.shape)
+    conformer.load_weights(h5, by_name=True)
+    conformer.summary(line_length=100)
+    conformer.add_featurizers(speech_featurizer, text_featurizer)
 
 #    print(conformer.inputs)
 #    print(conformer.outputs)
 
-        exec_helpers.convert_tflite(model=conformer, output=output)
+    exec_helpers.convert_tflite(model=conformer, output=output)
 
 
 if __name__ == "__main__":
-    fire.Fire(main)
+    
+    parser = argparse.ArgumentParser(description = "control the functions for generating conformer tflite")
+    parser.add_argument("--output", action='store', type=str, help="the test output for post processing", required=True)
+    parser.add_argument("--h5", action='store', type=str, help="which h5 model to be converted into tflite", required=True)
+    parser.add_argument("--config", action='store', type=str, default = "config.yml", help="the configuration file for testing")    
+
+    args = parser.parse_args()
+
+    time_s = datetime.now()
+    
+    main(config=args.config, h5=args.h5, output=args.output)
+
+    time_t = datetime.now() - time_s
+    print("This run takes %s" % time_t)
+
+    #fire.Fire(main)
