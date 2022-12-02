@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import tensorflow as tf
-devices = [1]
+devices = [2]
 gpus = tf.config.list_physical_devices("GPU")
 print("gpus =", gpus)
 visible_gpus = [gpus[i] for i in devices]
@@ -88,7 +88,7 @@ def main(
     contextnet.make(speech_featurizer.shape, prediction_shape=text_featurizer.prepand_shape, batch_size=global_batch_size)
     if pretrained:
         contextnet.load_weights(pretrained, by_name=True, skip_mismatch=True)
-    contextnet.summary(line_length=100)
+    #contextnet.summary(line_length=100)
     optimizer = tf.keras.optimizers.Adam(
         TransformerSchedule(
             d_model=contextnet.dmodel,
@@ -106,7 +106,7 @@ def main(
 
     callbacks = [
         tf.keras.callbacks.ModelCheckpoint(**config.learning_config.running_config.checkpoint),
-        tf.keras.callbacks.EarlyStopping(patience=10, verbose=1, restore_best_weights=True),
+        tf.keras.callbacks.EarlyStopping(patience=20, verbose=1, restore_best_weights=True),
         tf.keras.callbacks.experimental.BackupAndRestore(config.learning_config.running_config.states_dir),
         tf.keras.callbacks.TensorBoard(**config.learning_config.running_config.tensorboard),
     ]

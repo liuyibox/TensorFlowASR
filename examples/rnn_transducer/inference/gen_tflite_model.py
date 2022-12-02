@@ -25,6 +25,8 @@ from tensorflow_asr.helpers import exec_helpers, featurizer_helpers
 
 DEFAULT_YAML = os.path.join(os.path.abspath(os.path.dirname(__file__)), "config.yml")
 
+from datetime import datetime
+import argparse
 
 def main(
     config: str = DEFAULT_YAML,
@@ -54,4 +56,6 @@ def main(
 
 
 if __name__ == "__main__":
-    fire.Fire(main)
+    #fire.Fire(main)
+
+    

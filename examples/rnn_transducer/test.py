@@ -13,10 +13,12 @@
 # limitations under the License.
 import tensorflow as tf
 
-devices = [2]
+
+devices = [1]
 gpus = tf.config.list_physical_devices("GPU")
 visible_gpus = [gpus[i] for i in devices]
 tf.config.set_visible_devices(visible_gpus, "GPU")
+
 #strategy = tf.distribute.MirroredStrategy()
 
 import os
@@ -84,12 +86,19 @@ def main(
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description = "control the functions for rnnt_transducer")
-    parser.add_argument("--output", action='store', type=str, default = "./test_outputs/test.tsv", help="the test output for post processing")
+    parser.add_argument("--output", action='store', type=str, default = None, help="the test output for post processing")
     parser.add_argument("--saved", action='store', type=str, default = "/slot1/asr_models/tensorflowasr_librispeech_models/tensorflowasr_pretrained/subword-rnnt/25.h5", help="saved model")
 #    parser.add_argument("--cuda_device", action='store', type=str, default = "1", help="indicate the cuda device number")
     parser.add_argument("--config", action='store', type=str, default = "config.yml", help="the configuration file for testing")
+    #parser.add_argument("--gpu", action='store', type=int, default = 0, help="GPU id")
+
 
     args = parser.parse_args()
+
+    #devices = [args.gpu]
+    #gpus = tf.config.list_physical_devices("GPU")
+    #visible_gpus = [gpus[i] for i in devices]
+    #tf.config.set_visible_devices(visible_gpus, "GPU")
 
 #    gpus = tf.config.list_physical_devices("GPU")
 #    visible_gpus = [args.cuda_device]
@@ -97,4 +106,14 @@ if __name__ == "__main__":
 
 #    os.environ['CUDA_VISIBLE_DEVICES'] = args.cuda_device
 
-    main(config=args.config, saved=args.saved, output=args.output)
+    if not args.output:
+        test_output_dir = '/'.join(args.saved.split('/')[:-2])
+        test_output_path = test_output_dir+'/test_output.tsv'
+    else:
+        test_output_path = args.output
+
+    print('test_output_path =', test_output_path)
+
+    #stop
+
+    main(config=args.config, saved=args.saved, output=test_output_path)

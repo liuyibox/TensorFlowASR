@@ -14,10 +14,12 @@
 
 
 import tensorflow as tf
-devices = [2]
+
+devices = [1]
 gpus = tf.config.list_physical_devices("GPU")
 visible_gpus = [gpus[i] for i in devices]
 tf.config.set_visible_devices(visible_gpus, "GPU")
+
 
 import os
 import fire
@@ -90,7 +92,7 @@ def main(
     )
     if pretrained:
         rnn_transducer.load_weights(pretrained, by_name=True, skip_mismatch=True)
-    rnn_transducer.summary(line_length=100)
+    #rnn_transducer.summary(line_length=100)
     rnn_transducer.compile(
         optimizer=config.learning_config.optimizer_config,
         experimental_steps_per_execution=spx,
@@ -100,7 +102,7 @@ def main(
 
     callbacks = [
         tf.keras.callbacks.ModelCheckpoint(**config.learning_config.running_config.checkpoint),
-        tf.keras.callbacks.EarlyStopping(patience=10, verbose=1, restore_best_weights=True),        
+        tf.keras.callbacks.EarlyStopping(patience=20, verbose=1, restore_best_weights=True),        
         tf.keras.callbacks.experimental.BackupAndRestore(config.learning_config.running_config.states_dir),
         tf.keras.callbacks.TensorBoard(**config.learning_config.running_config.tensorboard),
     ]
@@ -124,8 +126,17 @@ if __name__ == "__main__":
     #parser.add_argument("--pretrained", action='store', type=str, default = "/slot1/asr_models/tensorflowasr_librispeech_models/tensorflowasr_pretrained/subword-rnnt/25.h5", help="pretrained model")
     parser.add_argument("--pretrained", action='store', type=str, default = None, help="pretrained model")
     parser.add_argument("--config", action='store', type=str, default = "config.yml", help="the configuration file for testing")
+    #parser.add_argument("--gpu", action='store', type=int, default = 0, help="GPU id")
 
     args = parser.parse_args()
+
+    """
+    import tensorflow as tf
+    devices = [args.gpu]
+    gpus = tf.config.list_physical_devices("GPU")
+    visible_gpus = [gpus[i] for i in devices]
+    tf.config.set_visible_devices(visible_gpus, "GPU")
+    """
 
     main(config=args.config, pretrained=args.pretrained)    
     #fire.Fire(main)

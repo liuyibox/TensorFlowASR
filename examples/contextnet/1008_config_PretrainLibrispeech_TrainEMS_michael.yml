@@ -211,7 +211,9 @@ learning_config:
           mask_factor: 27
     data_paths:
       #- /home/liuyi/TensorFlowASR/conformer_standalone/finetune-train_transcripts.tsv
-      - /slot1/eval_tian/audio_tian/finetune_train.tsv
+      #- /slot1/eval_tian/audio_tian/finetune_train.tsv
+      - /slot1/eval_tian/audio_michael/finetune_train.tsv
+      #- /slot1/eval_tian/audio_radu/finetune_train.tsv
       # ++++ can add more data rows here
     tfrecords_dir: null
     shuffle: True
@@ -224,7 +226,9 @@ learning_config:
     use_tf: True
     data_paths:
       #- /home/liuyi/TensorFlowASR/conformer_standalone/finetune-test_concatenated_ss_transcripts.tsv
-      - /slot1/eval_tian/audio_tian/finetune_test.tsv
+      #- /slot1/eval_tian/audio_tian/finetune_test.tsv
+      - /slot1/eval_tian/audio_michael/finetune_test.tsv
+      #- /slot1/eval_tian/audio_radu/finetune_test.tsv
     tfrecords_dir: null
     shuffle: False
     cache: False
@@ -237,7 +241,9 @@ learning_config:
     data_paths: 
       #- /home/liuyi/TensorFlowASR/conformer_standalone/finetune-test_concatenated_ss_transcripts.tsv    
 #      - /slot1/audio_dataset/LibriSpeech/test-clean/transcripts.tsv
-      - /slot1/eval_tian/audio_tian/finetune_test.tsv
+      #- /slot1/eval_tian/audio_tian/finetune_test.tsv
+      - /slot1/eval_tian/audio_michael/finetune_test.tsv
+      #- /slot1/eval_tian/audio_radu/finetune_test.tsv
     tfrecords_dir: null
     shuffle: False
     cache: False
@@ -253,9 +259,10 @@ learning_config:
 
   running_config:
     batch_size: 2
-    num_epochs: 100  # check if stopped early before 100 +++++
+    num_epochs: 200  # check if stopped early before 100 +++++
     checkpoint:
-      filepath: /slot1/eval_tian/audio_tian/contextNet/contextNet_TrainFromScratchEMS/checkpoints/{epoch:02d}.h5
+      filepath: /slot1/eval_tian/audio_michael/contextNet/contextNet_PretrainLibrispeech_TrainEMS/checkpoints/{epoch:02d}.h5
+
       # rename for train from scratch and pretrained on librispeech, +++++ use same folder
 
       save_best_only: True
@@ -263,10 +270,11 @@ learning_config:
       save_freq: epoch
       verbose: 1
 #      monitor: val_loss
-    states_dir: /slot1/eval_tian/audio_tian/contextNet/contextNet_TrainFromScratchEMS/states
+    states_dir: /slot1/eval_tian/audio_michael/contextNet/contextNet_PretrainLibrispeech_TrainEMS/states
 
     tensorboard:
-      log_dir: /slot1/eval_tian/audio_tian/contextNet/contextNet_TrainFromScratchEMS/tensorboard
+      log_dir: /slot1/eval_tian/audio_michael/contextNet/contextNet_PretrainLibrispeech_TrainEMS/tensorboard
+ 
       # rename +++++
 
       histogram_freq: 1

@@ -70,7 +70,7 @@ def main(
     contextnet = ContextNet(**config.model_config, vocabulary_size=text_featurizer.num_classes)
     contextnet.make(speech_featurizer.shape)
     contextnet.load_weights(saved, by_name=True)
-    contextnet.summary(line_length=100)
+    #contextnet.summary(line_length=100)
     contextnet.add_featurizers(speech_featurizer, text_featurizer)
 
     test_dataset = dataset_helpers.prepare_testing_datasets(
@@ -87,7 +87,7 @@ def main(
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description = "control the functions for EMSBert")
-    parser.add_argument("--output", action='store', type=str, default = "./test_outputs/librispeech_testclean.tsv", help="the test output for post processing")
+    parser.add_argument("--output", action='store', type=str, default = None, help="the test output for post processing")
     parser.add_argument("--saved", action='store', type=str, default = "/slot1/asr_models/tensorflowasr_librispeech_models/tensorflowasr_pretrained/subword-contextnet/1008_86.h5", help="saved model")
 #    parser.add_argument("--cuda_device", action='store', type=str, default = "1", help="indicate the cuda device number")
     parser.add_argument("--config", action='store', type=str, default = "1008_config.yml", help="the configuration file for testing")
@@ -95,5 +95,17 @@ if __name__ == "__main__":
     args = parser.parse_args()
 #    os.environ['CUDA_VISIBLE_DEVICES'] = args.cuda_device
 
-    main(config=args.config, saved=args.saved, output=args.output)
+    if not args.output:
+        test_output_dir = '/'.join(args.saved.split('/')[:-2])
+        test_output_path = test_output_dir+'/test_output.tsv'
+    else:
+        test_output_path = args.output
+
+    print()
+    print('+++++test_output_path =', test_output_path)    
+    print()
+    #stop
+    
+    #main(config=args.config, saved=args.saved, output=args.output)
+    main(config=args.config, saved=args.saved, output=test_output_path)
     #fire.Fire(main)

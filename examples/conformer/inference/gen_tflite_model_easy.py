@@ -74,15 +74,29 @@ def main(
 if __name__ == "__main__":
     
     parser = argparse.ArgumentParser(description = "control the functions for generating conformer tflite")
-    parser.add_argument("--output", action='store', type=str, help="the test output for post processing", required=True)
+    parser.add_argument("--output", action='store', type=str, default=None, help="tflite model output path", required=False)
     parser.add_argument("--h5", action='store', type=str, help="which h5 model to be converted into tflite", required=True)
     parser.add_argument("--config", action='store', type=str, default = "config.yml", help="the configuration file for testing")    
 
     args = parser.parse_args()
 
     time_s = datetime.now()
-    
-    main(config=args.config, h5=args.h5, output=args.output)
+
+    print()
+    print('args.config =', args.config)
+    print("args.h5 =", args.h5)
+
+    if not args.output: # infer from the h5 path
+        model_dir = "/".join(args.h5.split('/')[:-2]) + '/tflite_model/'
+        tflite_model_path = model_dir + 'model.tflite'
+    else:
+        tflite_model_path = args.output + '/tflite_model/' + 'model.tflite'
+
+    print('tflite_model_path =', tflite_model_path)
+    print()
+    #stop
+
+    main(config=args.config, h5=args.h5, output=tflite_model_path)
 
     time_t = datetime.now() - time_s
     print("This run takes %s" % time_t)

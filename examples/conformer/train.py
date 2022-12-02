@@ -110,7 +110,7 @@ def main(
 
     callbacks = [
         tf.keras.callbacks.ModelCheckpoint(**config.learning_config.running_config.checkpoint),
-        tf.keras.callbacks.EarlyStopping(patience=10, verbose=1, restore_best_weights=True),
+        tf.keras.callbacks.EarlyStopping(patience=20, verbose=1, restore_best_weights=True),
         tf.keras.callbacks.experimental.BackupAndRestore(config.learning_config.running_config.states_dir),
         tf.keras.callbacks.TensorBoard(**config.learning_config.running_config.tensorboard),
     ]

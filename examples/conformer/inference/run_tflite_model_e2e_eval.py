@@ -126,7 +126,7 @@ def main(
     
         true_label = true_line.split("\t")[1]
         pred_text = "".join([chr(u) for u in hyp0])
-        transcribed_e2e_lines.append([pred_text, true_label])
+#        transcribed_e2e_lines.append([pred_text, true_label])
     
         asr_line_record = asr_true_line.split("\t")
     #    print("true text: ", asr_line_record[-1])
@@ -139,7 +139,7 @@ def main(
 #    transcribed_e2e_lines.insert(0, ["ps_pi_as_si_desc_c_mml_c", "label"])
     file_path = "sampled_liuyi_100e2e_conformerlite_transcribed_test.tsv"
 #    file_path = os.path.join("/home/liuyi/tflite_experimental/emsBert/eval_pretrain", "fitted_desc_sampled100e2e_conformerlite_transcribed_test.tsv")
-    write2DListFile(file_path, transcribed_e2e_lines, line_sep = "\t")
+#    write2DListFile(file_path, transcribed_e2e_lines, line_sep = "\t")
     print(file_path, len(transcribed_e2e_lines))
     
     
