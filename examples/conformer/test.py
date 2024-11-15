@@ -12,16 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 import tensorflow as tf
 
 devices = [0]
 gpus = tf.config.list_physical_devices("GPU")
 visible_gpus = [gpus[i] for i in devices]
 tf.config.set_visible_devices(visible_gpus, "GPU")
-#strategy = tf.distribute.MirroredStrategy()
+# strategy = tf.distribute.MirroredStrategy()
 
 
-import os
+
 import fire
 from tensorflow_asr.utils import env_util
 
@@ -87,11 +88,11 @@ if __name__ == "__main__":
     #parser.add_argument("--output", action='store', type=str, default = "./test_outputs/librispeech_testclean.tsv", help="the test output for post processing")
     parser.add_argument("--output", action='store', type=str, default = None, help="the test output for post processing")
     parser.add_argument("--saved", action='store', type=str, default = "/slot1/asr_models/tensorflowasr_librispeech_models/tensorflowasr_pretrained/subword-conformer/pretrained-subword-conformer/latest.h5", help="saved model")
-#    parser.add_argument("--cuda_device", action='store', type=str, default = "0", help="indicate the cuda device number")
+    # parser.add_argument("--cuda_device", action='store', type=str, default = "1", help="indicate the cuda device number")
     parser.add_argument("--config", action='store', type=str, default = "config.yml", help="the configuration file for testing")
 
     args = parser.parse_args()
-#    os.environ['CUDA_VISIBLE_DEVICES'] = args.cuda_device
+    # os.environ['CUDA_VISIBLE_DEVICES'] = args.cuda_device
 
     if not args.output:
         test_output_dir = '/'.join(args.saved.split('/')[:-2])
